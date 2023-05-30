@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int          @id @default(autoincrement())
+  email    String       @unique
+  password String
+  Schema   DataSchema[]
+}
+
+enum DataType {
+  IntType
+  StringType
+  DecimalType
+  BooleanType
+  DateTimeType
+}
+
+enum DataFieldAttribute {
+  idAttribute
+  defaultAttribute
+  uniqueAttribute
+  relationAttribute
+}
+
+model DataSchema {
+  id     Int         @id @default(autoincrement())
+  name   String
+  userId Int
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Model  DataModel[]
+
+  @@unique([userId, name])
+}
+
+model DataModel {
+  id       Int        @id @default(autoincrement())
+  name     String
+  schemaId Int
+  schema   DataSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+
+  @@unique([schemaId, name])
+}
+
+model DataField {
+  id   Int      @id @default(autoincrement())
+  name String
+  type DataType
+
+  KeyRelationFrom KeyRelation[] @relation("RelationFrom")
+  KeyRelationTo   KeyRelation[] @relation("RelationTo")
+}
+
+model KeyRelation {
+  id        Int       @id @default(autoincrement())
+  fieldFrom Int       @unique
+  fieldTo   Int
+  FieldFrom DataField @relation(name: "RelationFrom", fields: [fieldFrom], references: [id], onDelete: Cascade)
+  FieldTo   DataField @relation(name: "RelationTo", fields: [fieldTo], references: [id], onDelete: Cascade)
+}
