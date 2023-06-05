@@ -7,3 +7,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class UserLogin {
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  password: string;
+}

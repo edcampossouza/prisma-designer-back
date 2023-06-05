@@ -1,14 +1,15 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { CreateUserDto } from './schemas';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { CreateUserDto, UserLogin } from './schemas';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async getallUsers() {
     return await this.userService.getusers();
@@ -19,5 +20,19 @@ export class AuthService {
       createUserDto,
     );
     return user;
+  }
+
+  async signIn(credentials: UserLogin) {
+    const { email, password: pass } = credentials;
+    const user = await this.userService.getUserByEmail(email);
+    if (!user || !bcrypt.compareSync(pass, user.password)) {
+      throw new UnauthorizedException();
+    }
+
+    const payload = { id: user.id, email: user.email };
+
+    return {
+      token: await this.jwtService.signAsync(payload),
+    };
   }
 }
