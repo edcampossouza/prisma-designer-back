@@ -28,7 +28,7 @@ class Field {
 
   @ValidateNested()
   @Type(() => Reference)
-  reference?: Reference;
+  references?: Reference;
 }
 
 class Model {

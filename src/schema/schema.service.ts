@@ -13,11 +13,11 @@ export class SchemaService {
       file += ` model ${model.name} { \n`;
       model.fields.forEach((field) => {
         file += `      ${field.name}  ${field.type}\n`;
-        if (field.reference) {
-          file += ` ${field.reference.model.toLowerCase()} ${
-            field.reference.model
+        if (field.references) {
+          file += ` ${field.references.model.toLowerCase()} ${
+            field.references.model
           } @relation (fields: [${field.name}], references: [${
-            field.reference.field
+            field.references.field
           }])
           
           \n`;
