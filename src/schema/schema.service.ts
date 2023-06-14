@@ -7,7 +7,6 @@ import * as ppp from 'prettier-plugin-prisma';
 export class SchemaService {
   fileFromSerializedSchema(schema: SerializedSchema): string {
     console.log(JSON.stringify(schema, null, 2));
-    console.log(JSON.stringify(ppp));
     let file = '';
     schema.models.forEach((model) => {
       file += ` model ${model.name} { \n`;
@@ -26,7 +25,7 @@ export class SchemaService {
       file += '} \n';
     });
 
-    const formatted = format(file, { parser: 'prisma-parse' });
+    const formatted = format(file, { parser: 'prisma-parse', plugins: [ppp] });
     return formatted;
   }
 }
