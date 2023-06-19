@@ -11,15 +11,21 @@ export class SchemaService {
     schema.models.forEach((model) => {
       file += ` model ${model.name} { \n`;
       model.fields.forEach((field) => {
-        file += `      ${field.name}  ${field.type}\n`;
+        file += `      ${field.name}  ${field.type}`;
+        field.attributes.forEach((attr) => {
+          if (attr.name !== 'default') {
+            file += ` @${attr.name}`;
+          } else {
+            file += ` @default (${field.default})`;
+          }
+        });
+        file += '\n';
         if (field.references) {
           file += ` ${field.references.model.toLowerCase()} ${
             field.references.model
           } @relation (fields: [${field.name}], references: [${
             field.references.field
-          }])
-          
-          \n`;
+          }])\n`;
         }
       });
       file += '} \n';

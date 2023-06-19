@@ -21,6 +21,8 @@ class Field {
   @IsString()
   type: string;
 
+  default?: string;
+
   @ValidateNested()
   @Type(() => Attribute)
   @IsArray()
