@@ -34,6 +34,7 @@ export class AuthService {
     return {
       email: user.email,
       token: await this.jwtService.signAsync(payload),
+      schemas: user.Schema,
     };
   }
 }

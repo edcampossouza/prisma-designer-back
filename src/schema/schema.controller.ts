@@ -1,11 +1,20 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { SchemaService } from './schema.service';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { User } from '@prisma/client';
 
 @Controller('schema')
 export class SchemaController {
   constructor(private schemaService: SchemaService) {}
-  @Get()
+  @Get('hello')
   schema() {
     return { message: 'Hello Schema' };
   }
@@ -13,5 +22,12 @@ export class SchemaController {
   @Post('generate')
   format(@Body() body: SerializedSchema) {
     return this.schemaService.fileFromSerializedSchema(body);
+  }
+
+  @Get('')
+  @UseGuards(AuthGuard)
+  async schemas(@Request() req) {
+    const user: User = req.user;
+    return await this.schemaService.getSchemasFromUser(user.id);
   }
 }

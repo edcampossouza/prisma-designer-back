@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { format } from 'prettier';
 import * as ppp from 'prettier-plugin-prisma';
 
 @Injectable()
 export class SchemaService {
+  constructor(private prismaService: PrismaService) {}
   fileFromSerializedSchema(schema: SerializedSchema): string {
     console.log(JSON.stringify(schema, null, 2));
     let file = '';
@@ -33,5 +35,9 @@ export class SchemaService {
 
     const formatted = format(file, { parser: 'prisma-parse', plugins: [ppp] });
     return formatted;
+  }
+
+  async getSchemasFromUser(userId: number) {
+    return await this.prismaService.dataSchema.findMany({ where: { userId } });
   }
 }
