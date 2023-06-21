@@ -30,4 +30,11 @@ export class SchemaController {
     const user: User = req.user;
     return await this.schemaService.getSchemasFromUser(user.id);
   }
+
+  @Post('')
+  @UseGuards(AuthGuard)
+  async postSchema(@Request() req, @Body() schema: SerializedSchema) {
+    const user: User = req.user;
+    await this.schemaService.saveSchema(user.id, schema);
+  }
 }

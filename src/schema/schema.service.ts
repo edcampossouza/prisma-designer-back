@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { format } from 'prettier';
 import * as ppp from 'prettier-plugin-prisma';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SchemaService {
@@ -39,5 +40,22 @@ export class SchemaService {
 
   async getSchemasFromUser(userId: number) {
     return await this.prismaService.dataSchema.findMany({ where: { userId } });
+  }
+
+  async saveSchema(userId: number, schema: SerializedSchema) {
+    try {
+      await this.prismaService.dataSchema.create({
+        data: {
+          name: schema.name,
+          userId,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ConflictException(`Schema "${schema.name}" already exists`);
+        }
+      }
+    }
   }
 }
