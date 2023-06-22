@@ -26,10 +26,10 @@ enum DataType {
 }
 
 enum DataFieldAttribute {
-  idAttribute
-  defaultAttribute
-  uniqueAttribute
-  relationAttribute
+  id
+  default
+  unique
+  updatedAt
 }
 
 model DataSchema {
@@ -55,6 +55,7 @@ model DataModel {
 model DataField {
   id      Int       @id @default(autoincrement())
   name    String
+  default String?
   type    DataType
   modelId Int
   model   DataModel @relation(fields: [modelId], references: [id], onDelete: Cascade)

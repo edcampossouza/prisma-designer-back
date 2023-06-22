@@ -1,9 +1,14 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { format } from 'prettier';
 import * as ppp from 'prettier-plugin-prisma';
 import { Prisma, DataType } from '@prisma/client';
+import { buildSchemaFromDB } from './SchemaTransformer';
 
 @Injectable()
 export class SchemaService {
@@ -42,6 +47,11 @@ export class SchemaService {
     return await this.prismaService.dataSchema.findMany({ where: { userId } });
   }
 
+  async getSchemaByName(userId: number, name: string) {
+    const data = await buildSchemaFromDB(userId, name, this.prismaService);
+    return data;
+  }
+
   async saveSchema(userId: number, schema: SerializedSchema) {
     console.log(schema);
     try {
@@ -64,6 +74,7 @@ export class SchemaService {
                   data: model.fields.map((field) => ({
                     name: field.name,
                     type: DataType[field.type],
+                    default: field.default || undefined,
                   })),
                 },
               },
