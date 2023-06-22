@@ -45,8 +45,8 @@ export async function buildSchemaFromDB(
         references:
           f.KeyRelationFrom.length > 0
             ? {
-                model: f.KeyRelationFrom[0].FieldTo.name,
-                field: f.KeyRelationFrom[0].FieldTo.model.name,
+                model: f.KeyRelationFrom[0].FieldTo.model.name,
+                field: f.KeyRelationFrom[0].FieldTo.name,
               }
             : undefined,
       })),
