@@ -40,8 +40,8 @@ export async function buildSchemaFromDB(
       fields: m.DataField.map((f) => ({
         name: f.name,
         type: f.type,
-        default: f.default,
-        attributes: [],
+        default: f.default || undefined,
+        attributes: f.attributes.map((a) => ({ name: a })),
         references:
           f.KeyRelationFrom.length > 0
             ? {
@@ -57,6 +57,7 @@ export async function buildSchemaFromDB(
       models,
     };
   } catch (error) {
+    console.log(error);
     throw new NotFoundException();
   }
 }

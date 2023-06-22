@@ -1,13 +1,12 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { format } from 'prettier';
 import * as ppp from 'prettier-plugin-prisma';
-import { Prisma, DataType } from '@prisma/client';
+import { Prisma, DataType, DataFieldAttribute } from '@prisma/client';
 import { buildSchemaFromDB } from './SchemaTransformer';
 
 @Injectable()
@@ -75,6 +74,9 @@ export class SchemaService {
                     name: field.name,
                     type: DataType[field.type],
                     default: field.default || undefined,
+                    attributes: field.attributes.map(
+                      (a) => DataFieldAttribute[a.name],
+                    ),
                   })),
                 },
               },

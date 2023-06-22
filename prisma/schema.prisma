@@ -60,8 +60,9 @@ model DataField {
   modelId Int
   model   DataModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
-  KeyRelationFrom KeyRelation[] @relation("RelationFrom")
-  KeyRelationTo   KeyRelation[] @relation("RelationTo")
+  attributes      DataFieldAttribute[]
+  KeyRelationFrom KeyRelation[]        @relation("RelationFrom")
+  KeyRelationTo   KeyRelation[]        @relation("RelationTo")
 
   @@unique([modelId, name])
 }
