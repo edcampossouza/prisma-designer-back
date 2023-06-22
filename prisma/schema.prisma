@@ -18,11 +18,11 @@ model User {
 }
 
 enum DataType {
-  IntType
-  StringType
-  DecimalType
-  BooleanType
-  DateTimeType
+  Int
+  String
+  Decimal
+  Boolean
+  DateTime
 }
 
 enum DataFieldAttribute {
@@ -43,21 +43,26 @@ model DataSchema {
 }
 
 model DataModel {
-  id       Int        @id @default(autoincrement())
-  name     String
-  schemaId Int
-  schema   DataSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  id        Int         @id @default(autoincrement())
+  name      String
+  schemaId  Int
+  schema    DataSchema  @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  DataField DataField[]
 
   @@unique([schemaId, name])
 }
 
 model DataField {
-  id   Int      @id @default(autoincrement())
-  name String
-  type DataType
+  id      Int       @id @default(autoincrement())
+  name    String
+  type    DataType
+  modelId Int
+  model   DataModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
   KeyRelationFrom KeyRelation[] @relation("RelationFrom")
   KeyRelationTo   KeyRelation[] @relation("RelationTo")
+
+  @@unique([modelId, name])
 }
 
 model KeyRelation {
