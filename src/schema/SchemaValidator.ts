@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class Reference {
@@ -50,6 +56,21 @@ class Schema {
   @ValidateNested()
   @Type(() => Model)
   models: Model[];
+
+  @ValidateNested()
+  @IsArray()
+  @IsOptional()
+  @Type(() => Coordinate)
+  coordinates?: Coordinate[];
+}
+
+class Coordinate {
+  @IsString()
+  name: string;
+  @IsNumber()
+  x: number;
+  @IsNumber()
+  y: number;
 }
 
 export { Schema as SerializedSchema };

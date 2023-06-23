@@ -43,11 +43,12 @@ model DataSchema {
 }
 
 model DataModel {
-  id        Int         @id @default(autoincrement())
-  name      String
-  schemaId  Int
-  schema    DataSchema  @relation(fields: [schemaId], references: [id], onDelete: Cascade)
-  DataField DataField[]
+  id            Int                @id @default(autoincrement())
+  name          String
+  schemaId      Int
+  schema        DataSchema         @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  DataField     DataField[]
+  GraphicOption ScreenCoordinate[]
 
   @@unique([schemaId, name])
 }
@@ -73,4 +74,13 @@ model KeyRelation {
   fieldTo   Int
   FieldFrom DataField @relation(name: "RelationFrom", fields: [fieldFrom], references: [id], onDelete: Cascade)
   FieldTo   DataField @relation(name: "RelationTo", fields: [fieldTo], references: [id], onDelete: Cascade)
+}
+
+model ScreenCoordinate {
+  id      Int       @id @default(autoincrement())
+  modelId Int
+  model   DataModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  x       Int
+  y       Int
+  @@unique([modelId])
 }

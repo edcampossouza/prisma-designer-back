@@ -1,7 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { format } from 'prettier';
@@ -37,7 +34,6 @@ export class SchemaService {
       });
       file += '} \n';
     });
-
     const formatted = format(file, { parser: 'prisma-parse', plugins: [ppp] });
     return formatted;
   }
@@ -52,7 +48,6 @@ export class SchemaService {
   }
 
   async saveSchema(userId: number, schema: SerializedSchema) {
-    console.log(schema);
     try {
       //persist schema
       const createdSchema = await this.prismaService.dataSchema.create({
@@ -116,6 +111,31 @@ export class SchemaService {
             });
           }
         }
+      }
+      // graphics
+      const coordinates = schema.coordinates;
+      if (coordinates) {
+        await Promise.all(
+          coordinates.map(async (c) => {
+            const model = await this.prismaService.dataModel.findUnique({
+              where: {
+                schemaId_name: {
+                  schemaId: createdSchema.id,
+                  name: c.name,
+                },
+              },
+            });
+            if (model) {
+              return this.prismaService.screenCoordinate.create({
+                data: {
+                  x: c.x,
+                  y: c.y,
+                  modelId: model.id,
+                },
+              });
+            }
+          }),
+        );
       }
     } catch (error) {
       console.log(error);
