@@ -80,7 +80,8 @@ model ScreenCoordinate {
   id      Int       @id @default(autoincrement())
   modelId Int
   model   DataModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  x       Int
-  y       Int
+  x       Float
+  y       Float
+
   @@unique([modelId])
 }
