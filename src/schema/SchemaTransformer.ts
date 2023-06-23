@@ -6,7 +6,9 @@ export async function buildSchemaFromDB(
   userId: number,
   schemaName: string,
   prisma: PrismaService,
-): Promise<SerializedSchema> {
+): Promise<
+  SerializedSchema & { coordinates: { x: number; y: number; name: string }[] }
+> {
   try {
     const dataSchema = await prisma.dataSchema.findUniqueOrThrow({
       where: { userId_name: { userId, name: schemaName } },
@@ -52,9 +54,28 @@ export async function buildSchemaFromDB(
       })),
     }));
 
+    const coords = await prisma.screenCoordinate.findMany({
+      select: {
+        x: true,
+        y: true,
+        model: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      where: {
+        model: {
+          schema: {
+            id: dataSchema.id,
+          },
+        },
+      },
+    });
     return {
       name: schemaName,
       models,
+      coordinates: coords.map((c) => ({ x: c.x, y: c.y, name: c.model.name })),
     };
   } catch (error) {
     console.log(error);
