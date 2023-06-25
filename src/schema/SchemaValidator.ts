@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -51,6 +52,7 @@ class Model {
 
 class Schema {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @ValidateNested()
@@ -66,6 +68,7 @@ class Schema {
 
 class Coordinate {
   @IsString()
+  @IsNotEmpty()
   name: string;
   @IsNumber()
   x: number;
