@@ -15,10 +15,6 @@ import { User } from '@prisma/client';
 @Controller('schema')
 export class SchemaController {
   constructor(private schemaService: SchemaService) {}
-  @Get('hello')
-  hello() {
-    return { message: 'Hello Schema' };
-  }
 
   @Post('generate')
   format(@Body() body: SerializedSchema) {
