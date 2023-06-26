@@ -48,43 +48,57 @@ export class SchemaService {
   }
 
   async saveSchema(userId: number, schema: SerializedSchema) {
-    try {
-      //persist schema
-      const createdSchema = await this.prismaService.dataSchema.create({
-        data: {
-          name: schema.name,
-          userId,
-        },
-      });
-      //persist models and fields
-      await Promise.all(
-        schema.models.map((model) => {
-          return this.prismaService.dataModel.create({
-            data: {
-              schemaId: createdSchema.id,
-              name: model.name,
-              DataField: {
-                createMany: {
-                  data: model.fields.map((field) => ({
-                    name: field.name,
-                    type: DataType[field.type],
-                    default: field.default || undefined,
-                    attributes: field.attributes.map(
-                      (a) => DataFieldAttribute[a.name],
-                    ),
-                  })),
+    await this.prismaService.$transaction(async (tx) => {
+      try {
+        await tx.dataSchema.delete({
+          where: {
+            userId_name: {
+              userId,
+              name: schema.name,
+            },
+          },
+        });
+        console.log(`delete schema ${schema.name} before updating`);
+      } catch (error) {
+        console.log(`schema ${schema.name} not found for deletion`);
+      }
+
+      try {
+        //persist schema
+        const createdSchema = await tx.dataSchema.create({
+          data: {
+            name: schema.name,
+            userId,
+          },
+        });
+        //persist models and fields
+        await Promise.all(
+          schema.models.map((model) => {
+            return tx.dataModel.create({
+              data: {
+                schemaId: createdSchema.id,
+                name: model.name,
+                DataField: {
+                  createMany: {
+                    data: model.fields.map((field) => ({
+                      name: field.name,
+                      type: DataType[field.type],
+                      default: field.default || undefined,
+                      attributes: field.attributes.map(
+                        (a) => DataFieldAttribute[a.name],
+                      ),
+                    })),
+                  },
                 },
               },
-            },
-          });
-        }),
-      );
-      //persist relations
-      for (const orTable of schema.models) {
-        for (const orField of orTable.fields) {
-          if (orField.references) {
-            const originField =
-              await this.prismaService.dataField.findFirstOrThrow({
+            });
+          }),
+        );
+        //persist relations
+        for (const orTable of schema.models) {
+          for (const orField of orTable.fields) {
+            if (orField.references) {
+              const originField = await tx.dataField.findFirstOrThrow({
                 where: {
                   name: orField.name,
                   model: {
@@ -93,8 +107,7 @@ export class SchemaService {
                   },
                 },
               });
-            const targetField =
-              await this.prismaService.dataField.findFirstOrThrow({
+              const targetField = await tx.dataField.findFirstOrThrow({
                 where: {
                   name: orField.references.field,
                   model: {
@@ -103,49 +116,50 @@ export class SchemaService {
                   },
                 },
               });
-            await this.prismaService.keyRelation.create({
-              data: {
-                fieldFrom: originField.id,
-                fieldTo: targetField.id,
-              },
-            });
-          }
-        }
-      }
-      // graphics
-      const coordinates = schema.coordinates;
-      if (coordinates) {
-        await Promise.all(
-          coordinates.map(async (c) => {
-            const model = await this.prismaService.dataModel.findUnique({
-              where: {
-                schemaId_name: {
-                  schemaId: createdSchema.id,
-                  name: c.name,
-                },
-              },
-            });
-            if (model) {
-              return this.prismaService.screenCoordinate.create({
+              await tx.keyRelation.create({
                 data: {
-                  x: c.x,
-                  y: c.y,
-                  modelId: model.id,
+                  fieldFrom: originField.id,
+                  fieldTo: targetField.id,
                 },
               });
             }
-          }),
-        );
+          }
+        }
+        // graphics
+        const coordinates = schema.coordinates;
+        if (coordinates) {
+          await Promise.all(
+            coordinates.map(async (c) => {
+              const model = await tx.dataModel.findUnique({
+                where: {
+                  schemaId_name: {
+                    schemaId: createdSchema.id,
+                    name: c.name,
+                  },
+                },
+              });
+              if (model) {
+                return tx.screenCoordinate.create({
+                  data: {
+                    x: c.x,
+                    y: c.y,
+                    modelId: model.id,
+                  },
+                });
+              }
+            }),
+          );
+        }
+      } catch (error) {
+        console.log(error);
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          console.log('???');
+          throw new ConflictException(`Schema "${schema.name}" already exists`);
+        } else throw error;
       }
-    } catch (error) {
-      console.log(error);
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        console.log('???');
-        throw new ConflictException(`Schema "${schema.name}" already exists`);
-      } else throw error;
-    }
+    });
   }
 }
