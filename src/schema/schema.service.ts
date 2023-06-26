@@ -14,7 +14,6 @@ import { buildSchemaFromDB } from './SchemaTransformer';
 export class SchemaService {
   constructor(private prismaService: PrismaService) {}
   fileFromSerializedSchema(schema: SerializedSchema): string {
-    console.log(JSON.stringify(schema, null, 2));
     let file = '';
     schema.models.forEach((model) => {
       file += ` model ${model.name} { \n`;
@@ -24,7 +23,11 @@ export class SchemaService {
           if (attr.name !== 'default') {
             file += ` @${attr.name}`;
           } else {
-            file += ` @default (${field.default})`;
+            const def =
+              field.type === 'String'
+                ? `"${field.default}"`
+                : `${field.default}`;
+            file += ` @default (${def})`;
           }
         });
         file += '\n';
