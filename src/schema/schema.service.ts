@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { format } from 'prettier';
@@ -161,5 +165,28 @@ export class SchemaService {
         } else throw error;
       }
     });
+  }
+
+  async deleteSchema(userId: number, name: string) {
+    try {
+      await this.prismaService.dataSchema.delete({
+        where: {
+          userId_name: {
+            userId,
+            name,
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Schema not found');
+      } else {
+        console.log(error);
+        throw error;
+      }
+    }
   }
 }

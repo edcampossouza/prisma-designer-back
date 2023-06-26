@@ -6,6 +6,7 @@ import {
   UseGuards,
   Request,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { SchemaService } from './schema.service';
@@ -33,6 +34,12 @@ export class SchemaController {
   async schema(@Request() req, @Param('name') name: string) {
     const user: User = req.user;
     return await this.schemaService.getSchemaByName(user.id, name);
+  }
+  @Delete(':name')
+  @UseGuards(AuthGuard)
+  async deleteSchema(@Request() req, @Param('name') name: string) {
+    const user: User = req.user;
+    await this.schemaService.deleteSchema(user.id, name);
   }
 
   @Post('')
