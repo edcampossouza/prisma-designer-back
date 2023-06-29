@@ -32,7 +32,7 @@
     "class-validator": "^0.14.0",
     "prettier": "^2.8.8",
     "prettier-plugin-prisma": "^4.13.0",
-    "prismadesign-lib": "^0.0.42",
+    "prismadesign-lib": "^0.0.43",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },

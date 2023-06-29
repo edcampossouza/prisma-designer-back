@@ -19,10 +19,13 @@ export class SchemaService {
       file += ` model ${model.name} { \n`;
       model.fields.forEach((field) => {
         file += `      ${field.name}  ${field.type}`;
+        if (field.attributes.find((a) => a.name === 'optional')) {
+          file += '?';
+        }
         field.attributes.forEach((attr) => {
-          if (attr.name !== 'default') {
+          if (attr.name !== 'default' && attr.name !== 'optional') {
             file += ` @${attr.name}`;
-          } else {
+          } else if (attr.name === 'default') {
             const def =
               field.type === 'String'
                 ? `"${field.default}"`

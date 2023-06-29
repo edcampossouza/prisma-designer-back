@@ -30,6 +30,7 @@ enum DataFieldAttribute {
   default
   unique
   updatedAt
+  optional
 }
 
 model DataSchema {
