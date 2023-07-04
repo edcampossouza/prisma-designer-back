@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
 import { SchemaService } from './schema.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import { User } from '@prisma/client';
 
 @Controller('schema')
