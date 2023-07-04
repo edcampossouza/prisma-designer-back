@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SchemaController } from './schema.controller';
 import { SchemaService } from './schema.service';
-import { AuthGuard } from '../auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
+import { schemaResult, serializedTest } from './test-data';
 
 describe('SchemaController', () => {
   let controller: SchemaController;
-  const schemaServiceMock = {};
-  const guardMock = {};
+  const schemaServiceMock = {
+    fileFromSerializedSchema: () => schemaResult,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,5 +24,10 @@ describe('SchemaController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should generate the schema', () => {
+    const result = controller.format(serializedTest);
+    expect(result).toBe(schemaResult);
   });
 });
