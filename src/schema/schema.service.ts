@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { SerializedSchema } from './SchemaValidator';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { format } from 'prettier';
 import * as ppp from 'prettier-plugin-prisma';
 import { Prisma, DataType, DataFieldAttribute } from '@prisma/client';
